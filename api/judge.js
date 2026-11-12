@@ -52,7 +52,8 @@ export default async function handler(req, res) {
         messages: [{ role: "user", content: PROMPT(q) }]
       })
     });
-    if (!r.ok) return res.status(502).json({ error: "claude unavailable" });
+    if (!process.env.ANTHROPIC_API_KEY) { console.error("ANTHROPIC_API_KEY missing"); return res.status(502).json({ error: "no key" }); }
+    if (!r.ok) { const body = await r.text(); console.error("anthropic", r.status, body.slice(0, 500)); return res.status(502).json({ error: "claude unavailable", status: r.status, detail: body.slice(0, 300) }); }
     const data = await r.json();
     const text = (data.content || []).map(c => c.text || "").join("");
     const j = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
@@ -61,6 +62,7 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=86400");
     return res.status(200).json(j);
   } catch (e) {
-    return res.status(502).json({ error: "claude unavailable" });
+    console.error("judge failed", e && e.message);
+    return res.status(502).json({ error: "claude unavailable", detail: String(e && e.message).slice(0, 200) });
   }
 }
