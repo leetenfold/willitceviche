@@ -10,21 +10,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#EEF1DC; --fg:#1F2B1C; --soft:rgba(31,43,28,.62); --line:rgba(31,43,28,.25);
+  --bg:#EEF1DC; --fg:#1F2B1C; --accent:#FF3D7F; --soft:rgba(31,43,28,.62); --line:rgba(31,43,28,.25);
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){ --bg:#1C2419; --fg:#E7EDCF; --soft:rgba(231,237,207,.6); --line:rgba(231,237,207,.25); }
+  :root:not([data-theme="light"]){ --bg:#1C2419; --fg:#E7EDCF; --accent:#FF5C93; --soft:rgba(231,237,207,.6); --line:rgba(231,237,207,.25); }
 }
-:root[data-theme="dark"]{ --bg:#1C2419; --fg:#E7EDCF; --soft:rgba(231,237,207,.6); --line:rgba(231,237,207,.25); }
+:root[data-theme="dark"]{ --bg:#1C2419; --fg:#E7EDCF; --accent:#FF5C93; --soft:rgba(231,237,207,.6); --line:rgba(231,237,207,.25); }
 
-body[data-v="yes"]{ --bg:#CFE35A; --fg:#1E3610; --soft:rgba(30,54,16,.68); --line:rgba(30,54,16,.3); }
-body[data-v="no"]{ --bg:#2D3940; --fg:#E8EEF0; --soft:rgba(232,238,240,.65); --line:rgba(232,238,240,.28); }
-body[data-v="probably"]{ --bg:#F3B3C1; --fg:#4B1027; --soft:rgba(75,16,39,.68); --line:rgba(75,16,39,.3); }
-body[data-v="if"]{ --bg:#2F6B3A; --fg:#F1F7D6; --soft:rgba(241,247,214,.7); --line:rgba(241,247,214,.3); }
-body[data-v="is"]{ --bg:#F6F09A; --fg:#2F3A20; --soft:rgba(47,58,32,.68); --line:rgba(47,58,32,.3); }
+body[data-v="yes"]{ --bg:#CFE35A; --fg:#1E3610; --accent:#FF3D7F; --soft:rgba(30,54,16,.68); --line:rgba(30,54,16,.3); }
+body[data-v="no"]{ --bg:#2D3940; --fg:#E8EEF0; --accent:#D4F03C; --soft:rgba(232,238,240,.65); --line:rgba(232,238,240,.28); }
+body[data-v="probably"]{ --bg:#F3B3C1; --fg:#4B1027; --accent:#FF6A00; --soft:rgba(75,16,39,.68); --line:rgba(75,16,39,.3); }
+body[data-v="if"]{ --bg:#2F6B3A; --fg:#F1F7D6; --accent:#FFD23F; --soft:rgba(241,247,214,.7); --line:rgba(241,247,214,.3); }
+body[data-v="is"]{ --bg:#F6F09A; --fg:#2F3A20; --accent:#FF3D7F; --soft:rgba(47,58,32,.68); --line:rgba(47,58,32,.3); }
 
 *,*::before,*::after{ box-sizing:inherit; }
 html{ height:100%; scroll-padding-top:env(safe-area-inset-top,0px); }
@@ -41,8 +41,14 @@ main{
 }
 h1{
   font-family:"Bagel Fat One", "Arial Black", Impact, sans-serif; font-weight:400;
-  font-size:clamp(22px,3vw,30px); margin:0; letter-spacing:.01em;
+  font-size:clamp(52px,11vw,140px); line-height:.95; margin:0; letter-spacing:-.01em;
+  color:var(--accent); text-shadow:.045em .045em 0 var(--fg);
+  transition:color .45s ease, text-shadow .45s ease;
 }
+h1 span{ display:inline-block; transform:rotate(var(--r,0deg)) translateY(var(--y,0)); }
+h1 .w{ display:inline-block; white-space:nowrap; margin-right:.22em; }
+h1 .w:last-child{ margin-right:0; }
+@media (hover:hover){ h1 span{ transition:transform .25s cubic-bezier(.2,1.8,.4,1); } h1 span:hover{ transform:rotate(calc(var(--r,0deg) * -3)) translateY(-.08em); } }
 form{ display:flex; align-items:baseline; gap:.15em; border-bottom:3px solid var(--fg); }
 input{
   flex:1; min-width:0; background:transparent; border:0; color:var(--fg);
@@ -94,7 +100,7 @@ button:focus-visible, .chip:focus-visible{ outline:3px solid var(--fg); outline-
 </head>
 <body>
 <main>
-  <h1>Will it ceviche?</h1>
+  <h1 aria-label="Will it ceviche?"><span aria-hidden="true" style="display:inline"><span class="w"><span style="--r:-6deg;--y:0em">W</span><span style="--r:4deg;--y:-0.04em">i</span><span style="--r:-3deg;--y:0.03em">l</span><span style="--r:7deg;--y:-0.02em">l</span></span> <span class="w"><span style="--r:-5deg;--y:0.04em">i</span><span style="--r:3deg;--y:-0.03em">t</span></span> <span class="w"><span style="--r:-3deg;--y:0.03em">c</span><span style="--r:7deg;--y:-0.02em">e</span><span style="--r:-5deg;--y:0.04em">v</span><span style="--r:3deg;--y:-0.03em">i</span><span style="--r:-7deg;--y:0.02em">c</span><span style="--r:5deg;--y:0em">h</span><span style="--r:-4deg;--y:0.03em">e</span><span style="--r:6deg;--y:-0.04em">?</span></span></span></h1>
 
   <section>
     <form id="f" autocomplete="off">
