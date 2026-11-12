@@ -267,17 +267,6 @@ function limeLine(res, qty){
 
 let ctl = null;
 
-async function askClaude(q){
-  ctl?.abort(); ctl = new AbortController();
-  const r = await fetch("/api/judge?q="+encodeURIComponent(q), {signal:ctl.signal});
-  if(!r.ok) return null;
-  const j = await r.json();
-  const v = ["yes","no","probably","if","is"].includes(j.verdict) ? j.verdict : "probably";
-  const g = Math.max(1, Number(j.grams)||150);
-  return {v, r:Math.min(8,Math.max(0,parseInt(j.rule)||0)), w:String(j.reason||"").replace(/\u2014/g,","),
-    ai:{g, basis:String(j.basis||wt(g)), whole:!!j.whole, noun:String(j.noun||"thing")}};
-}
-
 const $ = id => document.getElementById(id);
 const input = $("thing");
 
@@ -306,17 +295,7 @@ async function show(q){
   const hit = exact(qty.rest || q);
   if(hit){ ctl?.abort(); render(q, hit, qty); return; }
 
-  // not on the list: ask Claude
-  document.body.dataset.v = "";
-  ["verdict","why","limes","rule","src","idle"].forEach(id => $(id).hidden = true);
-  $("thinking").hidden = false;
-  try{
-    const res = await askClaude(q);
-    if(res){ render(q, res, qty, "Judged by Claude. The lime maths is ours."); return; }
-  }catch(e){
-    if(e && e.name === "AbortError") return;
-  }
-  render(q, judge(qty.rest || q), qty, "Claude wasn't available, so this is the rulebook's best guess.");
+  render(q, judge(qty.rest || q), qty);
 }
 
 $("f").addEventListener("submit", e => { e.preventDefault(); show(input.value); });
