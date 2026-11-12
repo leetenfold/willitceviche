@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: process.env.CEVICHE_MODEL || "claude-haiku-5-5",
-        max_tokens: 300,
+        max_tokens: 2000,
         messages: [{ role: "user", content: PROMPT(q) }]
       })
     });
@@ -56,6 +56,7 @@ export default async function handler(req, res) {
     if (!r.ok) { const body = await r.text(); console.error("anthropic", r.status, body.slice(0, 500)); return res.status(502).json({ error: "claude unavailable", status: r.status, detail: body.slice(0, 300) }); }
     const data = await r.json();
     const text = (data.content || []).map(c => c.text || "").join("");
+    if (!text.includes("{")) { console.error("no json", data.stop_reason, JSON.stringify(data.content).slice(0, 500)); return res.status(502).json({ error: "claude unavailable", stop: data.stop_reason, types: (data.content || []).map(c => c.type) }); }
     const j = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
     if (cache.size > 5000) cache.clear();
     cache.set(key, j);
