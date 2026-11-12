@@ -68,18 +68,18 @@ button:focus-visible, .chip:focus-visible{ outline:3px solid var(--fg); outline-
 #answer{ min-height:clamp(180px,34vh,340px); }
 #verdict{
   font-family:"Bagel Fat One", "Arial Black", Impact, sans-serif; font-weight:400;
-  font-size:clamp(88px,22vw,260px); line-height:.86; margin:0; letter-spacing:-.01em;
+  font-size:clamp(80px,18vw,220px); line-height:1.02; margin:0; padding-bottom:.08em; letter-spacing:-.01em;
   overflow-wrap:anywhere;
 }
-#verdict.long{ font-size:clamp(56px,12vw,150px); line-height:.92; }
-#why{ font-size:clamp(19px,2.2vw,24px); max-width:34ch; margin:.6em 0 0; }
-#limes{ margin:.9em 0 0; display:flex; align-items:baseline; gap:.35em; flex-wrap:wrap; }
-#limes b{ font-family:"Bagel Fat One","Arial Black",sans-serif; font-weight:400; font-size:clamp(40px,7vw,76px); line-height:1; }
-#limes span{ font-size:clamp(17px,2vw,21px); max-width:40ch; }
+#verdict.long{ font-size:clamp(52px,11vw,140px); line-height:1.05; }
+#why{ font-size:clamp(19px,2.2vw,24px); line-height:1.4; max-width:36ch; margin:.9em 0 0; }
+#limes{ margin:1.6em 0 0; display:block; }
+#limes b{ display:block; font-family:"Bagel Fat One","Arial Black",sans-serif; font-weight:400; font-size:clamp(40px,7vw,76px); line-height:1.1; }
+#limes span{ display:block; font-size:clamp(17px,2vw,21px); line-height:1.45; max-width:48ch; margin-top:.4em; }
 #thinking{ font-family:"Bagel Fat One","Arial Black",sans-serif; font-size:clamp(40px,8vw,90px); margin:0; color:var(--soft); animation:squeeze 1s ease-in-out infinite alternate; }
 @keyframes squeeze{ from{ transform:scaleX(1); } to{ transform:scaleX(.88); } }
 .src{ color:var(--soft); font-size:13px; margin:.8em 0 0; }
-#rule{ color:var(--soft); margin:.5em 0 0; font-size:15px; }
+#rule{ color:var(--soft); margin:1.4em 0 0; font-size:15px; }
 .pop{ animation:pop .5s cubic-bezier(.2,1.6,.4,1) both; }
 @keyframes pop{ from{ transform:scale(.6) rotate(-4deg); opacity:0; } to{ transform:none; opacity:1; } }
 @media (prefers-reduced-motion: reduce){ .pop{ animation:none; } body{ transition:none; } }
