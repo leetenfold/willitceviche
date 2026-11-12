@@ -132,7 +132,7 @@ button:focus-visible, .chip:focus-visible{ outline:3px solid var(--fg); outline-
       <li>If it swam in the sea, yes.</li>
       <li>If it swam in a river, yes, once it's been frozen.</li>
       <li>If it lived in a shell, yes.</li>
-      <li>If it's a mammal that swims, yes, if.</li>
+      <li>If it's a mammal that swims, only where it's legal and traditional.</li>
       <li>If it walked on land, no.</li>
       <li>If it flew, probably.</li>
       <li>If it's a firm fruit or vegetable, yes.</li>
@@ -206,7 +206,7 @@ R.forEach((rule,i)=>rule.k.forEach(k=>M.push({k, i, re:new RegExp("(^|\\s)"+esc(
 M.sort((a,b)=>b.k.length-a.k.length || a.i-b.i);
 
 const WORD = {yes:"YES", no:"NO", probably:"PROBABLY", if:"YES, IF", is:"IT IS CEVICHE"};
-const RULE_TXT = ["","If it swam in the sea, yes.","If it swam in a river, yes, once frozen.","If it lived in a shell, yes.","If it's a mammal that swims, yes, if.","If it walked on land, no.","If it flew, probably.","If it's a firm fruit or vegetable, yes.","If it has an engine, a plug or a feeling, no."];
+const RULE_TXT = ["","If it swam in the sea, yes.","If it swam in a river, yes, once frozen.","If it lived in a shell, yes.","If it's a mammal that swims, only where it's legal and traditional.","If it walked on land, no.","If it flew, probably.","If it's a firm fruit or vegetable, yes.","If it has an engine, a plug or a feeling, no."];
 
 function clean(s){
   return s.toLowerCase().replace(/[’']/g,"").replace(/[^a-z0-9\s-]/g," ").replace(/-/g," ")

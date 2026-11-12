@@ -15,7 +15,7 @@ Verdicts:
 - "no": land meat and poultry (pathogens), dairy, already-cooked food, anything toxic, endangered or protected, pets, people, objects, vehicles, electronics, concepts.
 - "is": it is ceviche, lime, or leche de tigre.
 
-Rules to cite (number only): 1 swam in the sea, yes. 2 swam in a river, yes once frozen. 3 lived in a shell, yes. 4 mammal that swims, yes if. 5 walked on land, no. 6 flew, probably. 7 firm fruit or veg, yes. 8 engine, plug or feeling, no. Use 0 if none fits.
+Rules to cite (number only): 1 swam in the sea, yes. 2 swam in a river, yes once frozen. 3 lived in a shell, yes. 4 mammal that swims, only where legal and traditional. 5 walked on land, no. 6 flew, probably. 7 firm fruit or veg, yes. 8 engine, plug or feeling, no. Use 0 if none fits.
 
 Mass: if the person gave a weight or count, use it. Otherwise if the thing comes as one whole item (an animal, a vehicle, an object) use a real typical adult or standard mass for one, in grams. Otherwise use 150 (a starter portion). Be accurate.
 
