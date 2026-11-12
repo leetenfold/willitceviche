@@ -109,9 +109,6 @@ button:focus-visible, .chip:focus-visible{ outline:3px solid var(--fg); outline-
   background:radial-gradient(circle, #f4ffd0 0 18%, #b6e34a 19% 62%, #4e9a1f 63% 72%, #2e6b12 73%);
   animation:fall var(--t) cubic-bezier(.3,.1,.6,1) forwards; }
 @keyframes fall{ to{ transform:translate(var(--x), 110vh) rotate(var(--rot)); } }
-.mute{ position:fixed; right:clamp(12px,3vw,24px); bottom:clamp(12px,3vw,24px); z-index:6; width:44px; height:44px; border-radius:50%;
-  border:1.5px solid var(--line); background:var(--bg); color:var(--fg); font-size:20px; cursor:pointer; transition:transform .15s, background-color .45s, color .45s; }
-.mute:hover{ transform:scale(1.08); } .mute:active{ transform:scale(.9); }
 @media (prefers-reduced-motion: reduce){ .pop, #verdict .l, #verdict.shake, #verdict.bounce, .fade, .q.wig, button.go.busy{ animation:none; } body{ transition:none; } #confetti{ display:none; } }
 
 .rules{ border-top:1.5px solid var(--line); padding-top:24px; max-width:62ch; }
@@ -173,7 +170,6 @@ button:focus-visible, .chip:focus-visible{ outline:3px solid var(--fg); outline-
   </section>
 </main>
 <div id="confetti" aria-hidden="true"></div>
-<button class="mute" id="mute" type="button" aria-label="Sound on" title="Sound">🔊</button>
 
 <script>
 const R = [
@@ -314,56 +310,6 @@ const $ = id => document.getElementById(id);
 const input = $("thing");
 const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ---------- sound (synthesised, no files) ----------
-let soundOn = true;
-try{ soundOn = localStorage.getItem("wic-sound") !== "off"; }catch(e){}
-let AC = null;
-function ac(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } } if(AC.state==="suspended") AC.resume(); return AC; }
-function noise(c, dur){ const b = c.createBuffer(1, c.sampleRate*dur, c.sampleRate), d = b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; const s=c.createBufferSource(); s.buffer=b; return s; }
-function cheer(big){
-  const c = ac(); if(!c) return; const t = c.currentTime, dur = big ? 2.2 : 1.4;
-  // crowd roar: band-passed noise swelling then fading
-  const n = noise(c, dur), bp = c.createBiquadFilter(), g = c.createGain();
-  bp.type="bandpass"; bp.frequency.value=1100; bp.Q.value=.6;
-  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.32,t+.18); g.gain.setValueAtTime(.32,t+dur*.45); g.gain.exponentialRampToValueAtTime(.001,t+dur);
-  n.connect(bp).connect(g).connect(c.destination); n.start(t);
-  // a few "woo!" voices: rising pitched vowels
-  const voices = big ? 6 : 3;
-  for(let i=0;i<voices;i++){
-    const o=c.createOscillator(), f=c.createBiquadFilter(), vg=c.createGain(), st=t+.05+Math.random()*.5, base=380+Math.random()*420;
-    o.type="sawtooth"; o.frequency.setValueAtTime(base,st); o.frequency.exponentialRampToValueAtTime(base*1.7,st+.35); o.frequency.exponentialRampToValueAtTime(base*1.4,st+.7);
-    f.type="bandpass"; f.frequency.value=900+Math.random()*500; f.Q.value=4;
-    vg.gain.setValueAtTime(0,st); vg.gain.linearRampToValueAtTime(.05,st+.06); vg.gain.exponentialRampToValueAtTime(.001,st+.75);
-    o.connect(f).connect(vg).connect(c.destination); o.start(st); o.stop(st+.8);
-  }
-  // claps
-  for(let i=0;i<(big?14:8);i++){
-    const st=t+.1+Math.random()*(dur-.4), cl=noise(c,.06), hp=c.createBiquadFilter(), cg=c.createGain();
-    hp.type="highpass"; hp.frequency.value=1500; cg.gain.setValueAtTime(.25,st); cg.gain.exponentialRampToValueAtTime(.001,st+.06);
-    cl.connect(hp).connect(cg).connect(c.destination); cl.start(st);
-  }
-}
-function boo(){
-  const c = ac(); if(!c) return; const t = c.currentTime;
-  for(let i=0;i<5;i++){
-    const o=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain(), st=t+i*.04, base=120+Math.random()*60;
-    o.type="sawtooth"; o.frequency.setValueAtTime(base*1.15,st); o.frequency.linearRampToValueAtTime(base,st+.3); o.frequency.linearRampToValueAtTime(base*.8,st+1.3);
-    f.type="lowpass"; f.frequency.setValueAtTime(700,st); f.frequency.linearRampToValueAtTime(380,st+1.3); f.Q.value=6;
-    g.gain.setValueAtTime(0,st); g.gain.linearRampToValueAtTime(.09,st+.15); g.gain.setValueAtTime(.09,st+.9); g.gain.exponentialRampToValueAtTime(.001,st+1.5);
-    o.connect(f).connect(g).connect(c.destination); o.start(st); o.stop(st+1.6);
-  }
-}
-function hmm(){
-  const c = ac(); if(!c) return; const t = c.currentTime, o=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain();
-  o.type="triangle"; o.frequency.setValueAtTime(220,t); o.frequency.linearRampToValueAtTime(200,t+.35); o.frequency.linearRampToValueAtTime(260,t+.8);
-  f.type="lowpass"; f.frequency.value=900; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.12,t+.08); g.gain.exponentialRampToValueAtTime(.001,t+.9);
-  o.connect(f).connect(g).connect(c.destination); o.start(t); o.stop(t+.95);
-}
-function playFor(v){ if(!soundOn) return; if(v==="yes"||v==="is") cheer(true); else if(v==="if") cheer(false); else if(v==="probably") hmm(); else boo(); }
-function setMute(){ const b=$("mute"); b.textContent = soundOn ? "🔊" : "🔈"; b.setAttribute("aria-label", soundOn ? "Sound on" : "Sound off"); b.style.opacity = soundOn ? 1 : .55; }
-$("mute").addEventListener("click", () => { soundOn = !soundOn; try{ localStorage.setItem("wic-sound", soundOn ? "on" : "off"); }catch(e){} setMute(); if(soundOn){ ac(); hmm(); } });
-setMute();
-
 // ---------- confetti of lime slices ----------
 function limeRain(n){
   if(calm) return; const box = $("confetti");
@@ -402,7 +348,7 @@ function render(q, res, qty, src){
   verdict.classList.add(v==="no" ? "shake" : (v==="yes"||v==="is"||v==="if") ? "bounce" : "x");
   ["why","limes","rule","src"].forEach((id,i) => { const e=$(id); e.classList.remove("fade"); void e.offsetWidth; e.style.setProperty("--d", 250+i*120+"ms"); e.classList.add("fade"); });
   $("go").classList.remove("busy");
-  if(fromUser){ playFor(v); if(v==="yes"||v==="is") limeRain(60); else if(v==="if") limeRain(24); }
+  if(fromUser){ if(v==="yes"||v==="is") limeRain(60); else if(v==="if") limeRain(24); }
   fromUser = false;
   $("why").textContent = res.w;
   if(res.v!=="is"){ const L = limeLine(res, qty); countUp($("n"), L.n); $("nd").textContent = L.d; $("limes").hidden=false; } else { $("limes").hidden=true; }
@@ -434,8 +380,8 @@ async function show(q){
   render(q, judge(qty.rest || q), qty, "Claude wasn't available, so this is the rulebook's best guess.");
 }
 
-$("f").addEventListener("submit", e => { e.preventDefault(); fromUser = true; ac(); document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); show(input.value); });
-document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { fromUser = true; ac(); document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===c)); input.value = c.textContent; show(c.textContent); }));
+$("f").addEventListener("submit", e => { e.preventDefault(); fromUser = true; document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on")); show(input.value); });
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { fromUser = true; document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on", x===c)); input.value = c.textContent; show(c.textContent); }));
 
 try{
   const q = new URLSearchParams(location.search).get("q");
