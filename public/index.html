@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Will it ceviche?</title>
+<meta name="description" content="Type a thing. Find out if it will ceviche.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1DC; --fg:#1F2B1C; --soft:rgba(31,43,28,.62); --line:rgba(31,43,28,.25);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#1C2419; --fg:#E7EDCF; --soft:rgba(231,237,207,.6); --line:rgba(231,237,207,.25); }
+}
+:root[data-theme="dark"]{ --bg:#1C2419; --fg:#E7EDCF; --soft:rgba(231,237,207,.6); --line:rgba(231,237,207,.25); }
+
+body[data-v="yes"]{ --bg:#CFE35A; --fg:#1E3610; --soft:rgba(30,54,16,.68); --line:rgba(30,54,16,.3); }
+body[data-v="no"]{ --bg:#2D3940; --fg:#E8EEF0; --soft:rgba(232,238,240,.65); --line:rgba(232,238,240,.28); }
+body[data-v="probably"]{ --bg:#F3B3C1; --fg:#4B1027; --soft:rgba(75,16,39,.68); --line:rgba(75,16,39,.3); }
+body[data-v="if"]{ --bg:#2F6B3A; --fg:#F1F7D6; --soft:rgba(241,247,214,.7); --line:rgba(241,247,214,.3); }
+body[data-v="is"]{ --bg:#F6F09A; --fg:#2F3A20; --soft:rgba(47,58,32,.68); --line:rgba(47,58,32,.3); }
+
+*,*::before,*::after{ box-sizing:inherit; }
+html{ height:100%; scroll-padding-top:env(safe-area-inset-top,0px); }
+body{
+  margin:0; min-height:100%;
+  background:var(--bg); color:var(--fg);
+  font-family:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:17px; line-height:1.5;
+  transition:background-color .45s ease, color .45s ease;
+}
+main{
+  max-width:1100px; margin:0 auto; padding:clamp(20px,5vw,56px) clamp(18px,5vw,56px) 40px;
+  display:flex; flex-direction:column; gap:clamp(28px,5vh,56px);
+}
+h1{
+  font-family:"Bagel Fat One", "Arial Black", Impact, sans-serif; font-weight:400;
+  font-size:clamp(22px,3vw,30px); margin:0; letter-spacing:.01em;
+}
+form{ display:flex; align-items:baseline; gap:.15em; border-bottom:3px solid var(--fg); }
+input{
+  flex:1; min-width:0; background:transparent; border:0; color:var(--fg);
+  font-family:"Bagel Fat One", "Arial Black", Impact, sans-serif;
+  font-size:clamp(34px,7vw,72px); line-height:1.15; padding:.1em 0;
+}
+input::placeholder{ color:var(--line); }
+input:focus{ outline:none; }
+form:focus-within{ border-bottom-color:var(--fg); box-shadow:0 3px 0 0 var(--fg); }
+.q{ font-family:"Bagel Fat One", "Arial Black", sans-serif; font-size:clamp(34px,7vw,72px); }
+button.go{
+  font:600 16px "Instrument Sans", system-ui, sans-serif; color:var(--bg); background:var(--fg);
+  border:0; border-radius:999px; padding:.7em 1.3em; cursor:pointer; align-self:center; white-space:nowrap;
+}
+button:focus-visible, .chip:focus-visible{ outline:3px solid var(--fg); outline-offset:3px; }
+.tries{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; color:var(--soft); font-size:15px; align-items:center; }
+.chip{
+  font:inherit; color:var(--fg); background:transparent; border:1.5px solid var(--line);
+  border-radius:999px; padding:.3em .85em; cursor:pointer;
+}
+.chip:hover{ border-color:var(--fg); }
+
+#answer{ min-height:clamp(180px,34vh,340px); }
+#verdict{
+  font-family:"Bagel Fat One", "Arial Black", Impact, sans-serif; font-weight:400;
+  font-size:clamp(88px,22vw,260px); line-height:.86; margin:0; letter-spacing:-.01em;
+  overflow-wrap:anywhere;
+}
+#verdict.long{ font-size:clamp(56px,12vw,150px); line-height:.92; }
+#why{ font-size:clamp(19px,2.2vw,24px); max-width:34ch; margin:.6em 0 0; }
+#limes{ margin:.9em 0 0; display:flex; align-items:baseline; gap:.35em; flex-wrap:wrap; }
+#limes b{ font-family:"Bagel Fat One","Arial Black",sans-serif; font-weight:400; font-size:clamp(40px,7vw,76px); line-height:1; }
+#limes span{ font-size:clamp(17px,2vw,21px); max-width:40ch; }
+#thinking{ font-family:"Bagel Fat One","Arial Black",sans-serif; font-size:clamp(40px,8vw,90px); margin:0; color:var(--soft); animation:squeeze 1s ease-in-out infinite alternate; }
+@keyframes squeeze{ from{ transform:scaleX(1); } to{ transform:scaleX(.88); } }
+.src{ color:var(--soft); font-size:13px; margin:.8em 0 0; }
+#rule{ color:var(--soft); margin:.5em 0 0; font-size:15px; }
+.pop{ animation:pop .5s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes pop{ from{ transform:scale(.6) rotate(-4deg); opacity:0; } to{ transform:none; opacity:1; } }
+@media (prefers-reduced-motion: reduce){ .pop{ animation:none; } body{ transition:none; } }
+
+.rules{ border-top:1.5px solid var(--line); padding-top:24px; max-width:62ch; }
+.rules h2{ font-family:"Bagel Fat One", "Arial Black", sans-serif; font-weight:400; font-size:24px; margin:0 0 10px; }
+.rules ol{ margin:0; padding-left:1.4em; }
+.rules li{ margin:.25em 0; }
+.rules p{ color:var(--soft); font-size:14px; margin:16px 0 0; }
+.idle{ color:var(--soft); font-size:clamp(20px,2.4vw,26px); max-width:30ch; margin:0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Will it ceviche?</h1>
+
+  <section>
+    <form id="f" autocomplete="off">
+      <label for="thing" class="sr" style="position:absolute;left:-9999px">Thing</label>
+      <input id="thing" name="q" placeholder="100g sea bass" maxlength="60" autocapitalize="off" spellcheck="false">
+      <span class="q" aria-hidden="true">?</span>
+      <button class="go" type="submit">Ask</button>
+    </form>
+    <div class="tries">
+      <span>Try</span>
+      <button class="chip" type="button">fish</button>
+      <button class="chip" type="button">Ford Focus</button>
+      <button class="chip" type="button">bat</button>
+      <button class="chip" type="button">killer whale</button>
+      <button class="chip" type="button">blue whale</button>
+      <button class="chip" type="button">100g blubber</button>
+      <button class="chip" type="button">chicken</button>
+      <button class="chip" type="button">mango</button>
+    </div>
+  </section>
+
+  <section id="answer" aria-live="polite">
+    <p class="idle" id="idle">Type anything, with a weight if you like. Lime juice will decide, and tell you how many limes.</p>
+    <p id="thinking" hidden>Squeezing…</p>
+    <p id="verdict" hidden></p>
+    <p id="why" hidden></p>
+    <p id="limes" hidden><b id="n"></b><span id="nd"></span></p>
+    <p id="rule" hidden></p>
+    <p class="src" id="src" hidden></p>
+  </section>
+
+  <section class="rules">
+    <h2>The rules</h2>
+    <ol>
+      <li>If it swam in the sea, yes.</li>
+      <li>If it swam in a river, yes, once it's been frozen.</li>
+      <li>If it lived in a shell, yes.</li>
+      <li>If it's a mammal that swims, yes, if.</li>
+      <li>If it walked on land, no.</li>
+      <li>If it flew, probably.</li>
+      <li>If it's a firm fruit or vegetable, yes.</li>
+      <li>If it has an engine, a plug or a feeling, no.</li>
+    </ol>
+    <p>The maths: ceviche takes about 240ml of lime juice per 450g of flesh, enough to cover it. A Persian lime gives about 30ml of juice and weighs about 67g. So that's one lime per 56g, rounded up. With no weight given, it's a 150g starter portion, or the whole thing if it comes whole.</p>
+    <p>Lime juice firms protein. It does not cook it. Buy fish from someone who knows you're eating it raw.</p>
+  </section>
+</main>
+
+<script>
+const R = [
+  // exact oddities first
+  {v:"is",  r:0, k:["ceviche","cebiche","seviche"], w:"It already did. Well done."},
+  {v:"is",  r:0, k:["lime","leche de tigre","tiger milk","tigers milk"], w:"That's not a thing that ceviches. That's the thing that does the ceviching."},
+  {v:"no",  r:8, k:["lemon"], w:"Lime's understudy. It'll do the job but it can't be the dish."},
+  {v:"no",  r:2, k:["fish finger","fish stick","fish and chips","fish cake","fishcake","tinned tuna","canned tuna","tuna mayo","smoked salmon","kipper"], w:"Already cooked or cured. Ceviching it twice is just making a sad salad."},
+  {v:"no",  r:1, k:["pufferfish","puffer fish","fugu","blowfish"], w:"Lime does nothing to tetrodotoxin. You'd be the last ceviche."},
+  {v:"no",  r:5, k:["goldfish","nemo","clownfish","koi"], w:"That's a pet. Put the limes down."},
+  {v:"no",  r:4, k:["blue whale"], w:"Endangered, protected worldwide, and the largest animal that has ever lived. You'd need more limes by weight than whale.", m:100000000, mw:"an adult blue whale, about 100 tonnes", mn:"whale"},
+  {v:"if",  r:4, k:["killer whale","orca"], w:"If you've got a boat and a permit nobody will ever issue you.", m:4000000, mw:"an adult killer whale, about 4 tonnes", mn:"whale"},
+  {v:"yes", r:4, k:["blubber","muktuk","mattak"], w:"Muktuk, skin and blubber, is eaten raw across the Arctic. The fat won't firm up, but the skin takes lime fine."},
+  {v:"no",  r:4, k:["dolphin","porpoise","manatee","dugong","otter"], w:"Too clever and too loved. Nobody's coming to that dinner."},
+  {v:"if",  r:4, k:["whale","narwhal","beluga","seal","walrus","sea lion"], w:"If you're in the Arctic, it's traditional, and you've cleared it with everyone. Otherwise leave it in the sea."},
+  {v:"if",  r:1, k:["shark","dogfish","mako","ray","skate","stingray"], w:"If it's sustainably caught and super fresh. Ammonia turns up fast in these."},
+  {v:"probably", r:6, k:["bat"], w:"Lime kills a lot of things. Not all of the things a bat has.", m:5, mw:"a pipistrelle, Britain's commonest bat, about 5g", mn:"bat"},
+  {v:"probably", r:6, k:["pigeon","duck","goose","chicken wing","owl","seagull","gull","parrot","bird"], w:"It flew, so rule six. In practice, the rule should be no."},
+  {v:"no",  r:5, k:["chicken","turkey","hen"], w:"Salmonella doesn't care about your limes.", m:1800, mw:"a whole chicken, about 1.8kg", mn:"chicken"},
+  {v:"no",  r:5, k:["pork","pig","bacon","ham","sausage","gammon"], w:"Pork wants heat. Lime is not heat."},
+  {v:"no",  r:5, k:["beef","steak","cow","lamb","mutton","venison","goat","horse","mince","burger"], w:"Raw and acidic is tartare's department. Different menu."},
+  {v:"if",  r:5, k:["alligator","crocodile","gator"], w:"If it's dead. Check that bit twice."},
+  {v:"probably", r:5, k:["frog","frogs legs","snail","escargot"], w:"The French would say no. The French aren't in charge here."},
+  {v:"no",  r:8, k:["human","person","people","me","you","myself","my boss","boss","my ex","ex","husband","wife","baby","child","neighbour","neighbor"], w:"No. Absolutely not. Log off."},
+  {v:"no",  r:8, k:["dog","cat","hamster","rabbit","guinea pig","horse","pony"], w:"Pet. Walked on land. Two strikes."},
+  {v:"probably", r:6, k:["cricket","grasshopper","chapulines","locust","ant","mealworm"], w:"In Oaxaca they'd lime these and eat them by the handful. Toast them first."},
+  {v:"probably", r:3, k:["jellyfish"], w:"Salted, rinsed and sliced thin, sure. Straight off the beach, no."},
+
+  // freshwater
+  {v:"if",  r:2, k:["trout","carp","pike","perch","catfish","tilapia","zander","char","bream","eel"], w:"If it's been frozen hard first. River fish bring parasites to the party."},
+  {v:"if",  r:2, k:["salmon"], w:"If it's farmed, or wild and frozen first. Then it's glorious."},
+
+  // shellfish
+  {v:"yes", r:3, k:["prawn","shrimp","scallop","clam","cockle","langoustine","crayfish","crawfish","conch","abalone"], w:"Classic. Firm, sweet, turns opaque in minutes."},
+  {v:"yes", r:3, k:["oyster"], w:"You were eating it raw anyway. Lime just gives it a job."},
+  {v:"yes", r:3, k:["mussel","lobster","crab"], w:"Yes, though most kitchens blanch these first. Then lime away."},
+  {v:"yes", r:3, k:["octopus","squid","calamari","cuttlefish"], w:"Poach it tender, chill it, then ceviche. Peru does this beautifully."},
+  {v:"yes", r:3, k:["sea urchin","urchin","uni"], w:"Yes, gently. Don't drown it."},
+  {v:"yes", r:7, k:["seaweed","samphire","kelp","wakame"], w:"Swam-adjacent. Adds crunch. Allowed."},
+
+  // sea fish
+  {v:"yes", r:1, k:["fish","sea bass","seabass","bass","tuna","halibut","snapper","grouper","cod","haddock","hake","pollock","mackerel","sardine","anchovy","anchovies","mahi mahi","mahi","sole","plaice","flounder","turbot","brill","monkfish","bream","tilapia","yellowtail","hamachi","swordfish","corvina","sea bream","bonito","mullet","john dory","herring","wahoo","barracuda","pollack","whiting","lemon sole","dab","gurnard","coley"], w:"It swam in the sea. This is literally what ceviche is for."},
+
+  // plants
+  {v:"yes", r:7, k:["mango","mushroom","cauliflower","heart of palm","hearts of palm","palm heart","coconut","watermelon","cucumber","tomato","jackfruit","avocado","pineapple","radish","red onion","onion","corn","sweetcorn","sweet potato","chilli","chili","pepper","courgette","zucchini","fennel","beetroot","beet","kohlrabi","jicama","plantain","papaya","celery"], w:"Vegan ceviche is real and it's decent. Firm stuff soaks up the lime."},
+  {v:"probably", r:7, k:["tofu","tempeh","seitan"], w:"Firm tofu, pressed hard, will take a marinade. Nobody's pretending it's sea bass."},
+  {v:"no",  r:7, k:["banana","strawberry","raspberry","blueberry","grape","peach","pear","apple","kiwi","lettuce","spinach","potato","aubergine","eggplant","broccoli","sprout","brussels sprout","carrot"], w:"Either goes to mush, goes grey, or just sits there being a raw vegetable in juice."},
+  {v:"no",  r:5, k:["egg","cheese","milk","yoghurt","yogurt","butter","cream","ice cream"], w:"Dairy and lime make curds and regret."},
+  {v:"no",  r:8, k:["bread","toast","cake","pizza","pasta","rice","noodle","biscuit","cookie","crisp","chips","chocolate","cereal","sandwich","donut","doughnut","croissant","pie","kebab","curry","soup"], w:"Already a finished food. Lime juice just makes it wet."},
+
+  // engines, plugs, objects
+  {v:"no",  r:8, m:1300000, mw:"a Ford Focus, about 1.3 tonnes kerb weight", mn:"car", k:["ford focus","ford","focus","fiesta","mondeo","car","van","lorry","truck","bus","tractor","bmw","audi","volvo","vauxhall","corsa","tesla","toyota","honda","nissan","fiat","skoda","volkswagen","vw","golf","mini","jeep","land rover","range rover","motorbike","motorcycle","scooter","bike","bicycle","train","plane","helicopter","boat","ship","yacht","submarine","rocket","engine"], w:"It has an engine. Lime juice will do nothing but void the warranty."},
+  {v:"no",  r:8, k:["iphone","phone","laptop","computer","macbook","ipad","tablet","tv","television","telly","fridge","kettle","toaster","microwave","printer","keyboard","mouse","headphones","speaker","turntable","cdj","traktor","synth","battery","cable","usb","playstation","xbox","nintendo"], w:"It has a plug. Acid and electricity have a very short relationship."},
+  {v:"no",  r:8, k:["rock","stone","brick","concrete","wood","plank","plastic","metal","steel","iron","glass","sand","gravel","paper","cardboard","sock","shoe","trainer","hat","coat","shirt","jeans","chair","table","sofa","bed","door","house","building","sign","poster","banner","flag","pen","pencil","book","candle","soap","coin","key","spoon","fork","knife","plate"], w:"Not food. You can soak it in lime for a year and it'll just be a limey one."},
+  {v:"no",  r:8, k:["love","time","money","hope","fear","anxiety","monday","tuesday","friday","weekend","brexit","tax","vat","the government","government","politics","music","house music","feelings","regret","sadness","joy","dreams"], w:"You can't marinate a concept. People have tried. It's called therapy."},
+];
+
+// build matchers, longest keys first so "killer whale" beats "whale" and "ford focus" beats "focus"
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+const M = [];
+R.forEach((rule,i)=>rule.k.forEach(k=>M.push({k, i, re:new RegExp("(^|\\s)"+esc(k)+"(s|es)?(?=\\s|$)")})));
+M.sort((a,b)=>b.k.length-a.k.length || a.i-b.i);
+
+const WORD = {yes:"YES", no:"NO", probably:"PROBABLY", if:"YES, IF", is:"IT IS CEVICHE"};
+const RULE_TXT = ["","If it swam in the sea, yes.","If it swam in a river, yes, once frozen.","If it lived in a shell, yes.","If it's a mammal that swims, yes, if.","If it walked on land, no.","If it flew, probably.","If it's a firm fruit or vegetable, yes.","If it has an engine, a plug or a feeling, no."];
+
+function clean(s){
+  return s.toLowerCase().replace(/[’']/g,"").replace(/[^a-z0-9\s-]/g," ").replace(/-/g," ")
+    .replace(/\b(a|an|the|some|raw|fresh|frozen|whole|big|small|little|giant|my|your|will|it|ceviche|can|i)\b(?=.)/g," ")
+    .replace(/\s+/g," ").trim();
+}
+
+function exact(input){
+  const s = clean(input);
+  for(const m of M){ if(new RegExp("^"+esc(m.k)+"(s|es)?$").test(s)) return R[m.i]; }
+  const raw = input.toLowerCase().trim();
+  if(/^(ceviche|cebiche|seviche)$/.test(raw)) return R[0];
+  return null;
+}
+function judge(input){
+  const raw = input.toLowerCase().trim();
+  let s = clean(input);
+  if(!s) s = raw;
+  // "ceviche" on its own survives cleaning only as raw
+  if(/^(ceviche|cebiche|seviche)$/.test(raw)) return R[0];
+  for(const m of M){ if(m.re.test(" "+s+" ")) return R[m.i]; }
+  if(/fish\b|fishes\b/.test(s)) return {v:"yes", r:1, w:"Anything with fish in the name gets the benefit of the doubt."};
+  if(/berr(y|ies)\b/.test(s)) return {v:"no", r:7, w:"Berries go to jam in lime. Not ceviche."};
+  return {v:"probably-not", r:0, w:"Not on the list. General rule: if it didn't swim, it probably shouldn't sit in lime."};
+}
+
+const G_PER_LIME = 450/240*30; // 56.25g of flesh per lime
+const LIME_G = 67;
+const UNITS = {g:1,gram:1,grams:1,gr:1,kg:1000,kgs:1000,kilo:1000,kilos:1000,kilogram:1000,kilograms:1000,lb:453.6,lbs:453.6,pound:453.6,pounds:453.6,oz:28.35,ounce:28.35,ounces:28.35,t:1e6,tonne:1e6,tonnes:1e6,ton:1e6,tons:1e6};
+function parseQty(q){
+  const s = q.toLowerCase().replace(/,/g,"");
+  let m = s.match(/(\d+(?:\.\d+)?)\s*(kilograms?|kilos?|kgs?|grams?|gr|g|lbs?|pounds?|ounces?|oz|tonnes?|tons?|t)\b/);
+  if(m) return {grams:parseFloat(m[1])*UNITS[m[2]], rest:s.replace(m[0]," ").replace(/\bof\b/," ").trim()};
+  m = s.match(/^\s*(\d+)\s+(?!g\b)/);
+  if(m) return {count:parseInt(m[1]), rest:s.replace(m[0]," ").trim()};
+  return {rest:s};
+}
+const fmt = n => n.toLocaleString("en-GB");
+function wt(g){ return g>=1e6 ? fmt(g>=1e8 ? Math.round(g/1e6) : +(g/1e6).toFixed(1))+" tonnes" : g>=1000 ? fmt(+(g/1000).toFixed(1))+"kg" : fmt(Math.round(g))+"g"; }
+function limeLine(res, qty){
+  let g, basis;
+  if(qty.grams){ g = qty.grams; basis = wt(g); }
+  else if(res.ai){ g = res.ai.g; basis = res.ai.basis; }
+  else if(res.m){ const c = qty.count||1; g = res.m*c; basis = (c>1 ? c+" × "+res.mw.replace(/^an? /,"") : res.mw); }
+  else { const c = qty.count||1; g = 150*c; basis = c>1 ? c+" starter portions, "+wt(g) : "a 150g starter portion"; }
+  const n = Math.max(1, Math.ceil(g/G_PER_LIME));
+  const ml = Math.round(g*240/450);
+  const juice = ml>=1000 ? fmt(ml>=100000 ? Math.round(ml/1000) : +(ml/1000).toFixed(1))+" litres" : ml+"ml";
+  let d = "for "+basis+". That's "+juice+" of juice";
+  if(n*LIME_G >= 1000) d += " and "+wt(n*LIME_G)+" of limes";
+  d += ".";
+  const noun = res.mn || (res.ai && res.ai.whole ? res.ai.noun : null);
+  if(noun && !qty.grams && g>=1000) d += " The limes outweigh the "+noun+".";
+  const ln = n===1 ? "lime" : "limes";
+  if(res.v==="no" || res.v==="probably-not") return {n:fmt(n)+" "+ln, d:"wouldn't help, "+d};
+  return {n:fmt(n)+" "+ln, d:d};
+}
+
+let ctl = null;
+
+async function askClaude(q){
+  ctl?.abort(); ctl = new AbortController();
+  const r = await fetch("/api/judge?q="+encodeURIComponent(q), {signal:ctl.signal});
+  if(!r.ok) return null;
+  const j = await r.json();
+  const v = ["yes","no","probably","if","is"].includes(j.verdict) ? j.verdict : "probably";
+  const g = Math.max(1, Number(j.grams)||150);
+  return {v, r:Math.min(8,Math.max(0,parseInt(j.rule)||0)), w:String(j.reason||"").replace(/\u2014/g,","),
+    ai:{g, basis:String(j.basis||wt(g)), whole:!!j.whole, noun:String(j.noun||"thing")}};
+}
+
+const $ = id => document.getElementById(id);
+const input = $("thing");
+
+function render(q, res, qty, src){
+  $("thinking").hidden = true;
+  const v = res.v === "probably-not" ? "no" : res.v;
+  document.body.dataset.v = v;
+  const verdict = $("verdict");
+  verdict.textContent = res.v === "probably-not" ? "PROBABLY NOT" : WORD[res.v];
+  verdict.classList.toggle("long", verdict.textContent.length > 8);
+  verdict.classList.remove("pop"); void verdict.offsetWidth; verdict.classList.add("pop");
+  $("why").textContent = res.w;
+  if(res.v!=="is"){ const L = limeLine(res, qty); $("n").textContent = L.n; $("nd").textContent = L.d; $("limes").hidden=false; } else { $("limes").hidden=true; }
+  $("rule").textContent = res.r ? "Rule " + res.r + ": " + RULE_TXT[res.r] : "";
+  $("src").textContent = src || "";
+  $("idle").hidden = true; verdict.hidden = false; $("why").hidden = false; $("rule").hidden = !res.r; $("src").hidden = !src;
+  const word = res.v === "probably-not" ? "Probably not" : WORD[res.v].charAt(0) + WORD[res.v].slice(1).toLowerCase();
+  document.title = word + ". Will " + q + " ceviche?";
+}
+
+async function show(q){
+  q = (q||"").trim().slice(0,60);
+  if(!q) return;
+  try{ history.replaceState(null,"","?q="+encodeURIComponent(q)); }catch(e){}
+  const qty = parseQty(q);
+  const hit = exact(qty.rest || q);
+  if(hit){ ctl?.abort(); render(q, hit, qty); return; }
+
+  // not on the list: ask Claude
+  document.body.dataset.v = "";
+  ["verdict","why","limes","rule","src","idle"].forEach(id => $(id).hidden = true);
+  $("thinking").hidden = false;
+  try{
+    const res = await askClaude(q);
+    if(res){ render(q, res, qty, "Judged by Claude. The lime maths is ours."); return; }
+  }catch(e){
+    if(e && e.name === "AbortError") return;
+  }
+  render(q, judge(qty.rest || q), qty, "Claude wasn't available, so this is the rulebook's best guess.");
+}
+
+$("f").addEventListener("submit", e => { e.preventDefault(); show(input.value); });
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { input.value = c.textContent; show(c.textContent); }));
+
+try{
+  const q = new URLSearchParams(location.search).get("q");
+  if(q){ input.value = q; show(q); }
+}catch(e){}
+</script>
+</body>
+</html>
